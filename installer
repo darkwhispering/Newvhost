@@ -2,12 +2,7 @@
 #
 # title             : installer
 # description       : installs 'newvhost'
-# author            : Mattias Hedman
-# create            : 2012-04-12
-# updated           : 2014-07-12
-# version           : 2
 # usage             : No parameters. Just invoke script-name.
-# special thanks    : To Tzunamii for the original script and code
 #==============================================================================
 
 # Check so root is running the script

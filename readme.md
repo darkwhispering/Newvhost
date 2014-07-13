@@ -18,3 +18,26 @@ Uninstallation
 1. Give the *uninstaller* script execution permission with `chmod +x uninstaller`
 2. Run the uninstaller with `./uninstaller`
 3. Done
+
+Configuration
+---------------------
+
+**tSERVERUSER** | *Default: root* | User to user for permissions
+
+**tLOCATION** | *Default: /root/vhosts* | Location to host all virtual hosts (recommended is the home folder of the user specified above)
+
+**tLOCATIONSAFE** | *Default: \/root\/vhosts* | Safe ocation path, must be same as tLOCATION!
+
+**tDBPW** | *Default: null* | MySQL root password. If left empty, the script will ask for the password
+
+
+Special thanks
+---------------------
+
+Special thanks to my friend Tzunamii for the original script and code.
+
+Changelog
+---------------------
+
+### v1.0.0 (2014-07-13)
+- First release

@@ -2,27 +2,24 @@
 #
 # title             : newvhost
 # description       : adds a new apache virtual host and create database if wanted
-# author            : Mattias Hedman
-# create            : 2012-04-12
-# updated           : 2014-07-12
-# version           : 2
 # usage             : No parameters. Just invoke script-name.
-# special thanks    : To Tzunamii for the original script and code
 #==================================================================================
 
 #-----------------------------------------------
 # Edit these variables after your needs
 #-----------------------------------------------
 
-# Default user to give permission to new virutal hosts
+# User to user for permissions
 tSERVERUSER="root"
 
 # Location to host all virtual hosts (recommended is the home folder of the user specified above)
-tLOCATION="/home/root/vhosts"
-tLOCATIONSAFE="\/home\/root\/vhosts"
+tLOCATION="/root/vhosts"
+
+# Safe ocation path, must be same as tLOCATION!
+tLOCATIONSAFE="\/root\/vhosts"
 
 # If left empty, the script will ask for MySQL root account password
-tDBPW="password"
+tDBPW=""
 
 #-----------------------------------------------
 # DO NOT EDIT BELOW THIS LINE!
