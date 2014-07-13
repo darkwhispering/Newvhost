@@ -30,12 +30,13 @@ Configuration
 
 **tDBPW** | *Default: null* | MySQL root password. If left empty, the script will ask for the password
 
-Tested
+Tested environment
 ---------------------
 
 This script have been tested succefully on a clean machines running
 
 - Ubuntu 14.04 LTS with Apache2 and MySQL Server 5.5
+- Debian 7.5 with Apache 2 and MySQL Server 5.5
 
 
 Special thanks
