@@ -1,0 +1,49 @@
+#!/bin/bash
+#
+# title             : uninstaller
+# description       : uninstalls 'newvhost'
+# author            : Mattias Hedman
+# create            : 2012-04-12
+# updated           : 2014-07-12
+# version           : 1
+# usage             : No parameters. Just invoke script-name.
+# special thanks    : To Tzunamii for the original script and code
+#==============================================================================
+
+
+# Check so root is running the script
+if [ "$(id -u)" != "0" ]; then
+    echo "This script must be run as root" 1>&2
+    exit 1
+fi
+
+# Set up variables and strings
+tLOCAL="/usr/local/newvhost"
+tBIN="/usr/bin/newvhost"
+
+# Get proper paths to binaries used
+tRM=$(which rm)
+
+#-----------------------------------------------
+# Functions
+#-----------------------------------------------
+
+#
+# Uninstall newvhost script
+#
+function uninstaller() {
+
+    $tRM -rf $tLOCAL
+    $tRM $tBIN
+
+    echo
+    echo "Uninstallation complete!"
+    echo
+
+}
+
+
+#
+# Main
+#
+uninstaller

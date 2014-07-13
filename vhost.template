@@ -1,0 +1,25 @@
+# domain: CHANGEMEVHOST
+# public: CHANGEMEHOME/CHANGEMEVHOST
+
+<VirtualHost *:80>
+
+    ServerName  CHANGEMEVHOST
+
+    DirectoryIndex index.html index.php
+    DocumentRoot CHANGEMEHOME/CHANGEMEVHOST/public
+
+    # Directory settings
+    <Directory "CHANGEMEHOME/CHANGEMEVHOST/public">
+        Options -Indexes
+        AllowOverride all
+        Order allow,deny
+        allow from all
+    </Directory>
+
+    # Possible values include: debug, info, notice, warn, error, crit, alert, emerg.
+    LogLevel warn
+
+    ErrorLog  CHANGEMEHOME/CHANGEMEVHOST/log/error.log
+    CustomLog CHANGEMEHOME/CHANGEMEVHOST/log/access.log combined
+
+</VirtualHost>

@@ -1,0 +1,330 @@
+#!/bin/bash
+#
+# title             : newvhost
+# description       : adds a new apache virtual host and create database if wanted
+# author            : Mattias Hedman
+# create            : 2012-04-12
+# updated           : 2014-07-12
+# version           : 2
+# usage             : No parameters. Just invoke script-name.
+# special thanks    : To Tzunamii for the original script and code
+#==================================================================================
+
+#-----------------------------------------------
+# Edit these variables after your needs
+#-----------------------------------------------
+
+# Default user to give permission to new virutal hosts
+tSERVERUSER="root"
+
+# Location to host all virtual hosts (recommended is the home folder of the user specified above)
+tLOCATION="/home/root/vhosts"
+tLOCATIONSAFE="\/home\/root\/vhosts"
+
+# If left empty, the script will ask for MySQL root account password
+tDBPW="password"
+
+#-----------------------------------------------
+# DO NOT EDIT BELOW THIS LINE!
+#-----------------------------------------------
+
+## Check so root is running the script
+if [ "$(id -u)" != "0" ]; then
+    echo "This script must be run as root" 1>&2
+    exit 1
+fi
+
+# Set up needed variables
+tVHOST=""
+tHOSTLOCATION=""
+tVHOSTDIR=""
+tVHOSTCONFIG=""
+tDBUSER=""
+tDIR="/usr/local/newvhost"
+tGENPASSWD=32
+tGENPW=""
+
+# Get proper paths to binaries used
+tSED=$(which sed)
+tA2ENSITE=$(which a2ensite)
+tCHOWN=$(which chown)
+tMKDIR=$(which mkdir)
+tMYSQL=$(which mysql)
+tTR=$(which tr)
+tHEAD=$(which head)
+tCP=$(which cp)
+tRM=$(which rm)
+tAPACHE2CTL=$(which apache2ctl)
+
+
+#-----------------------------------------------
+# Functions
+#-----------------------------------------------
+
+
+#
+# Perform an action quietly
+#
+function quietly() {
+
+	"$@" > /dev/null 2>&1
+
+}
+
+#
+# Generat a password
+#
+function genpasswd() {
+
+	tGENPW=$($tTR -dc A-Za-z0-9_ < /dev/urandom | $tHEAD -c ${tGENPASSWD} | xargs)
+
+}
+
+#
+# Get server name for the virtual host
+#
+function set_vhost() {
+
+    clear
+	echo
+    echo "-----------------------------------------------------------------------------"
+    echo
+	echo "Please type in the domain name to be used for the virtual host."
+    echo
+	echo "It must be a fully qualified domain name, including .com/.net or what else"
+    echo "you have as domain ending. However, DO NOT include http(s)!!"
+    echo
+    echo "-----------------------------------------------------------------------------"
+	echo
+	read -r -p "Domain name ? " _domain_
+
+	if [ -z "$_domain_" ]; then
+	    echo
+	    echo "No domain name given, exiting."
+	    echo
+		exit 1
+	else
+		tVHOST=$_domain_
+	fi
+
+}
+
+#
+# Ask for the mysql root password if it is not already specified in the config
+#
+function get_rootpw() {
+
+	if [ -z "$tDBPW" ]; then
+
+		echo
+		read -r -s -p "Database admin's password ? " _mydbpw_
+
+		if [ -z "$_mydbpw_" ]; then
+		    echo
+		    echo "No password given, exiting."
+		    echo
+			exit 1
+		else
+			tDBPW=$_mydbpw_
+		fi
+
+	fi
+
+}
+
+#
+# Create the new virtual host
+#
+function create_vhost() {
+
+    tHOSTLOCATION="$tLOCATION/$tVHOST"
+	tVHOSTDIR="$tHOSTLOCATION/public/"
+	tVHOSTLOG="$tHOSTLOCATION/log/"
+
+
+	echo
+	echo
+	echo -n "Creating new virtual host for domain $tVHOST... "
+
+	# Check if the dir for the new vhost already exists
+	if [ -d "$tHOSTLOCATION" ]; then
+		echo "$tHOSTLOCATION already exists, aborting."
+		exit 1
+	fi
+
+	# Create the new dir for the vhost
+    $tMKDIR -p ${tHOSTLOCATION}/{public,log}
+	# $tMKDIR -p $tVHOSTDIR
+	# $tMKDIR -p $tVHOSTLOG
+
+	# Copy the index.html template to the new vhost-dir
+	$tCP $tDIR/index.template $tVHOSTDIR/index.html
+
+	# Set the proper web server permissions
+	$tCHOWN -R $tSERVERUSER:$tSERVERUSER $tHOSTLOCATION
+
+	# Put vhost config-file into place
+	tVHOSTCONFIG="/etc/apache2/sites-available/${tVHOST}.conf"
+
+    # Check if config file already exists
+	if [ -f "$tVHOSTCONFIG" ]; then
+	    echo "$tVHOSTCONFIG already exists, aborting."
+		exit 1
+	fi
+
+    # Create temporary apache config file
+	$tSED -e "s/CHANGEMEVHOST/${tVHOST}/g" $tDIR/vhost.template > $tDIR/vhost.template1
+    $tSED -e "s/CHANGEMEHOME/${tLOCATIONSAFE}/g" $tDIR/vhost.template1 > $tDIR/${tVHOST}.conf
+
+    # Copy apache config file to /etc/apache2/site-available
+	$tCP $tDIR/${tVHOST}.conf $tVHOSTCONFIG
+
+    # Remove temporary config file
+	$tRM $tDIR/vhost.template1
+    $tRM $tDIR/${tVHOST}.conf
+
+	printf "Done\n"
+
+    # Activate the new virtual host?
+	echo
+    read -r -p "Do you want to enable the newly added virtual host ($tVHOST) ? [y/N] " tCHOICE
+    case $tCHOICE in
+        [yY][eE][sS]|[yY])
+        echo
+        echo -n "Enabling vhost... "
+		$tA2ENSITE ${tVHOST}.conf | quietly
+		$tAPACHE2CTL graceful | quietly
+        printf "Done\n"
+        ;;
+    *)
+		echo
+		echo "Skipping vhost enabling procedure by user choice"
+        return
+        ;;
+    esac
+
+}
+
+#
+# Ask if user wants to create a database too
+#
+function add_db() {
+
+    # Ask if we want to create a database to the new virtual host
+    echo
+    echo "-----------------------------------------------------------------------------"
+    echo
+    read -r -p "Do you want to create a database to your new virtual host ($tVHOST) ? [y/N] " tDBCHOICE
+    case $tDBCHOICE in
+        [yY][eE][sS]|[yY])
+        get_rootpw
+        create_db
+        ;;
+    *)
+        echo
+        echo "Skipping creating a database by user choice"
+        return
+        ;;
+    esac
+
+}
+
+#
+# Create a new database and database user
+#
+function create_db() {
+
+    echo
+    echo "-----------------------------------------------------------------------------"
+    echo
+    echo "Type in the desired username. It will also be used as the table name."
+    echo
+    echo "Remember no to use a to long name. MySQL only support up to 16 character in"
+    echo "the username. Anything above will break this script when trying to create"
+    echo "the database user."
+    echo
+    echo "-----------------------------------------------------------------------------"
+    echo
+    read -r -p "Database usernname ? " _dbuser_
+
+    if [ -z "$_dbuser_" ]; then
+
+        echo
+        echo "No domain name given, exiting."
+        echo
+        exit 1
+
+    else
+
+        tDBUSER=$_dbuser_
+
+    	echo
+    	echo -n "Creating new database... "
+
+    	# Create a random password
+    	genpasswd
+
+    	# Check if the database already exists
+        if [ -d "/var/lib/mysql/$tDBUSER" ]; then
+            echo "Database $tDBUSER already exists, aborting."
+            exit 1
+        fi
+
+    	# Create temporary db and db-user config files from template
+    	$tSED -e "s/CHANGEMEDB/$tDBUSER/g" $tDIR/mysql.template > $tDIR/mysql.template.1
+    	$tSED -e "s/CHANGEMEUSER/$tDBUSER/g" $tDIR/mysql.template.1 > $tDIR/mysql.template.2
+    	$tSED -e "s/CHANGEMEPW/$tGENPW/g" $tDIR/mysql.template.2 > $tDIR/mysql.template.3
+
+        # Create database table and user
+    	$tMYSQL --user=root --password=$tDBPW < $tDIR/mysql.template.3
+
+        # Delete temporary config files
+    	$tRM $tDIR/mysql.template.1
+    	$tRM $tDIR/mysql.template.2
+    	$tRM $tDIR/mysql.template.3
+
+    	printf "Done\n"
+
+    fi
+
+}
+
+#
+# We are done, print final message
+#
+function finished() {
+
+    echo
+    echo "-----------------------------------------------------------------------------"
+    echo
+    echo "# FINISHED"
+    echo "Everything is done and ready for your. Please save this information securely"
+    echo "This is the only time you will see it!"
+    echo
+    echo "# VIRTUAL HOST"
+    echo "Host location: $tVHOSTDIR"
+    echo "Log location: $tVHOSTLOG"
+
+    if [ -n "$tDBUSER" ]; then
+        echo
+        echo "# DATABASE"
+        echo "Database username: $tDBUSER"
+        echo "Database tablename: $tDBUSER"
+        echo "Database password: $tGENPW"
+        echo
+        echo "Please save the database password in a secure place, this is the only time you will see it!"
+    fi
+
+    echo
+    echo "-----------------------------------------------------------------------------"
+    echo
+
+}
+
+#-----------------------------------------------
+# Main
+#-----------------------------------------------
+set_vhost
+create_vhost
+add_db
+finished
