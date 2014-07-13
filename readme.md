@@ -44,6 +44,13 @@ Special thanks
 
 Special thanks to my friend Tzunamii for the original script and code.
 
+By me a beer
+---------------------
+
+Like and use any of my pluings and scripts? Me too!
+
+[By me a beer](http://darkwhispering.com/by-me-a-beer)
+
 Changelog
 ---------------------
 
