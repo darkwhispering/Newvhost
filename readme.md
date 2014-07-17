@@ -9,14 +9,14 @@ Installation
 1. Download the files and upload to any location on your server.
 2. Edit the first section of *newvhost* after your need.
 3. Give the *installer* script execution permission with `chmod +x installer`
-4. Run the installer with `./installer`
-5. Use the now available *newvhost* command to create your first virtual host.
+4. Run the installer with `sudo ./installer`
+5. Use the now available `sudo newvhost` command to create your first virtual host.
 
 Uninstallation
 ---------------------
 
 1. Give the *uninstaller* script execution permission with `chmod +x uninstaller`
-2. Run the uninstaller with `./uninstaller`
+2. Run the uninstaller with `sudo ./uninstaller`
 3. Done
 
 Configuration
