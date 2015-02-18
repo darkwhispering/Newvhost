@@ -1,19 +1,21 @@
+#
 # domain: CHANGEMEVHOST
-# public: CHANGEMEHOME/CHANGEMEVHOST
+# public: CHANGEMEHOME/CHANGEMEVHOST/public
+# log:    CHANGEMEHOME/CHANGEMEVHOST/log
+#
 
 <VirtualHost *:80>
 
     ServerName  CHANGEMEVHOST
 
     DirectoryIndex index.html index.php
-    DocumentRoot CHANGEMEHOME/CHANGEMEVHOST/public
+    DocumentRoot "CHANGEMEHOME/CHANGEMEVHOST/public"
 
     # Directory settings
     <Directory "CHANGEMEHOME/CHANGEMEVHOST/public">
         Options -Indexes
         AllowOverride all
-        Order allow,deny
-        allow from all
+        Require all granted
     </Directory>
 
     # Possible values include: debug, info, notice, warn, error, crit, alert, emerg.
