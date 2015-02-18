@@ -13,9 +13,11 @@
 tSERVERUSER="root"
 
 # Location to host all virtual hosts (recommended is the home folder of the user specified above)
+# Do not include a traling slash
 tLOCATION="/root/vhosts"
 
 # Safe ocation path, must be same as tLOCATION!
+# Do not include a traling slash
 tLOCATIONSAFE="\/root\/vhosts"
 
 # If left empty, the script will ask for MySQL root account password
