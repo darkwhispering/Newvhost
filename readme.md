@@ -56,7 +56,7 @@ By me a beer
 
 Like and use any of my pluings and scripts? Me too!
 
-[By me a beer](http://darkwhispering.com/by-me-a-beer)
+[By me a beer](http://darkwhispering.com/buy-me-a-beer)
 
 Changelog
 ---------------------
