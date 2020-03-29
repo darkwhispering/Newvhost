@@ -1,3 +1,5 @@
+![Not maintained](https://img.shields.io/badge/maintained%3F-no!-red.svg?style=flat)
+
 NEWVHOST SCRIPT
 ====================
 
